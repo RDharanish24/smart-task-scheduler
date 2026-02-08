@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Stats from './components/Stats';
+import Stats from './components/stats';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 
