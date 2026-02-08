@@ -1,4 +1,21 @@
-.env
-venv/
-.env/
+# --- PYTHON / BACKEND ---
+__pycache__/
+*.py[cod]
+*$py.class
 .venv/
+venv/
+env/
+.env
+
+# --- NODE / FRONTEND ---
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.DS_Store
+
+# --- IDE / SYSTEM ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

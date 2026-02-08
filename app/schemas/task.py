@@ -1,21 +1,19 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from app.models.task import TaskPriority
 
 class TaskBase(BaseModel):
     title: str
-    description: Optional[str] = None
-    priority: TaskPriority = TaskPriority.LOW
+    priority: Optional[str] = "medium"
     deadline: Optional[datetime] = None
-    is_completed: bool = False
-    is_locked: bool = False
+    is_locked: Optional[bool] = False
 
 class TaskCreate(TaskBase):
     pass
 
-class TaskResponse(TaskBase):
+class Task(TaskBase):
     id: int
-    owner_id: int
+    is_completed: bool
+
     class Config:
         from_attributes = True
