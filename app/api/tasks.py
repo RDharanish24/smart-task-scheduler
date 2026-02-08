@@ -43,3 +43,15 @@ def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User 
     db.delete(task)
     db.commit()
     return {"message": "Task deleted successfully"}
+
+
+
+@router.get("/smart-order", response_model=List[TaskResponse])
+def get_smart_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    tasks = db.query(Task).filter(Task.owner_id == current_user.id).all()
+    return SchedulerService.get_smart_schedule(tasks)
+
+@router.get("/missed", response_model=List[TaskResponse])
+def get_missed_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    tasks = db.query(Task).filter(Task.owner_id == current_user.id).all()
+    return SchedulerService.detect_missed_tasks(tasks)
