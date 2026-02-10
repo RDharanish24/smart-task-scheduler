@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base
 from app.api import tasks
 from app.core.worker import start_scheduler, stop_scheduler
+from app.api import tasks, analytics
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
@@ -42,3 +43,6 @@ app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
 @app.get("/")
 def root():
     return {"message": "CORS is fixed and API is running!"}
+
+app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])

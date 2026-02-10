@@ -19,3 +19,4 @@ class Task(Base):
     deadline = Column(DateTime, nullable=True)
     is_completed = Column(Boolean, default=False)
     is_locked = Column(Boolean, default=False)
+    completed_at = Column(DateTime, nullable=True)
