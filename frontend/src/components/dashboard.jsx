@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import ProductivityWidget from './ProductivityWidget'; // <--- NEW IMPORT
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -24,6 +25,9 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* 0. NEW: Productivity Widget */}
+      <ProductivityWidget />
+
       {/* 1. Summary Cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-lg shadow border-t-4 border-blue-500">

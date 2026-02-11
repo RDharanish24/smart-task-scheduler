@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CheckCircle, Trash2, Lock, AlertCircle } from 'lucide-react';
+import TaskTimer from './TaskTimer';
 
 const TaskList = ({ refreshTrigger, onUpdate }) => {
   const [tasks, setTasks] = useState([]);
