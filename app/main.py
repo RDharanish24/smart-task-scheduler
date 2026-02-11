@@ -5,7 +5,8 @@ from app.db.session import engine, Base
 from app.api import tasks
 from app.core.worker import start_scheduler, stop_scheduler
 from app.api import tasks, analytics
-
+# ... imports
+from app.api import tasks, analytics, productivity # <--- Import new file
 # Create Tables
 Base.metadata.create_all(bind=engine)
 
@@ -46,3 +47,10 @@ def root():
 
 app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
 app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+
+
+
+# ... app definition
+app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
+app.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
+app.include_router(productivity.router, prefix="/productivity", tags=["Productivity"]) # <--- Register

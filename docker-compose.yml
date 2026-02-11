@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # 1. Database
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=scheduler_db
+    ports:
+      - "5432:5432"
+
+  # 2. Backend API
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/scheduler_db
+    volumes:
+      - .:/app  # Live reload for development
+
+  # 3. Frontend (Optional: usually deployed separately on Vercel)
+  # Keeping it simple for local dev via npm start for now.
+
+volumes:
+  postgres_data:
