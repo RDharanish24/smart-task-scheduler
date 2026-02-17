@@ -5,6 +5,8 @@ from app.db.session import get_db
 from app.models.task import Task
 from app.models.timelog import TimeLog
 from app.services.productivity import ProductivityService
+from app.models.task import Task
+from app.models.timelog import TimeLog
 
 router = APIRouter()
 
@@ -80,4 +82,61 @@ def get_productivity_dashboard(db: Session = Depends(get_db)):
         "productivity_score": score,
         "burnout_risk": burnout,
         "time_stats": times
+    }
+
+@router.post("/tasks/{task_id}/finish-focus")
+def finish_focus_session(task_id: int, db: Session = Depends(get_db)):
+    # 1. Stop any running timer
+    active_log = db.query(TimeLog).filter(
+        TimeLog.task_id == task_id, 
+        TimeLog.end_time == None
+    ).first()
+
+    duration_added = 0
+    if active_log:
+        end_time = datetime.now()
+        duration_added = int((end_time - active_log.start_time).total_seconds() / 60)
+        active_log.end_time = end_time
+        active_log.duration_minutes = duration_added
+
+    # 2. Update Task
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.actual_duration += duration_added
+    task.is_completed = True
+    task.completed_at = datetime.now()
+    
+    # 3. GAMIFICATION LOGIC 🎮
+    points = 50 # Base points for finishing
+    message = "Task Completed!"
+    type = "neutral"
+
+    # Efficiency Bonus (Finished faster than estimate)
+    if task.actual_duration < task.estimated_duration:
+        bonus = 20
+        points += bonus
+        message = f"🚀 Speed Demon! You saved {task.estimated_duration - task.actual_duration} mins."
+        type = "success"
+    
+    # Planning Penalty (Took way longer than estimate)
+    elif task.actual_duration > (task.estimated_duration * 1.2):
+        penalty = 10
+        points -= penalty
+        message = f"⚠️ Overtime! You exceeded estimate by {task.actual_duration - task.estimated_duration} mins."
+        type = "warning"
+    
+    else:
+        message = "✅ On Target! Great planning."
+        type = "success"
+
+    db.commit()
+    
+    return {
+        "status": "completed",
+        "points_earned": points,
+        "message": message,
+        "type": type,
+        "final_duration": task.actual_duration
     }
