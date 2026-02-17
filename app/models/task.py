@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.orm import relationship # <--- Add this
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 
 class TaskPriority(str, enum.Enum):
@@ -18,10 +18,13 @@ class Task(Base):
     is_completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
     
-    # --- NEW PRODUCTIVITY FIELDS ---
+    # --- THIS WAS MISSING, PUT IT BACK ---
+    is_locked = Column(Boolean, default=False) 
+    # -------------------------------------
+
+    # --- PRODUCTIVITY FIELDS ---
     estimated_duration = Column(Integer, default=60) # In minutes
     actual_duration = Column(Integer, default=0)     # Auto-calculated
-    # -------------------------------
 
     # Relationship to TimeLog
     time_logs = relationship("TimeLog", back_populates="task", cascade="all, delete-orphan")
