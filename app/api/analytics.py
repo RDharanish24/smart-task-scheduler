@@ -44,3 +44,35 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         "priority_distribution": formatted_dist,
         "productivity_trend": productivity_trend
     }
+@router.get("/worklog")
+def get_worklog(db: Session = Depends(get_db)):
+    # Fetch all completed tasks ordered by newest first
+    completed_tasks = db.query(Task).filter(
+        Task.is_completed == True,
+        Task.completed_at != None
+    ).order_by(Task.completed_at.desc()).all()
+    
+    worklog_dict = {}
+    for task in completed_tasks:
+        date_str = task.completed_at.strftime("%Y-%m-%d")
+        display_date = task.completed_at.strftime("%A, %b %d, %Y") # e.g., Monday, Feb 16, 2026
+        
+        if date_str not in worklog_dict:
+            worklog_dict[date_str] = {
+                "date": date_str,
+                "display_date": display_date,
+                "total_time": 0,
+                "tasks_count": 0,
+                "tasks": []
+            }
+        
+        worklog_dict[date_str]["total_time"] += task.actual_duration
+        worklog_dict[date_str]["tasks_count"] += 1
+        worklog_dict[date_str]["tasks"].append({
+            "id": task.id,
+            "title": task.title,
+            "time_spent": task.actual_duration,
+            "priority": task.priority
+        })
+        
+    return list(worklog_dict.values())

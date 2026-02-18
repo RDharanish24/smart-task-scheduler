@@ -3,12 +3,13 @@ import axios from 'axios';
 import { Play, CheckCircle, X, Clock, Award } from 'lucide-react';
 
 const FocusModal = ({ task, onClose, onUpdate }) => {
-    const [status, setStatus] = useState('prep'); // prep, running, result
+    const [status, setStatus] = useState('prep'); 
     const [estimate, setEstimate] = useState(task.estimated_duration || 30);
-    const [elapsed, setElapsed] = useState(task.actual_duration * 60); // in seconds
+    
+    // FIX 1: Ensure it doesn't turn into NaN (Not a Number) if actual_duration is missing
+    const [elapsed, setElapsed] = useState((task.actual_duration || 0) * 60); 
     const [result, setResult] = useState(null);
 
-    // Timer Logic
     useEffect(() => {
         let interval;
         if (status === 'running') {
@@ -18,13 +19,16 @@ const FocusModal = ({ task, onClose, onUpdate }) => {
     }, [status]);
 
     const handleStart = async () => {
-        // Update estimate if changed
-        // (Optional: add an API to update task estimate here if you want strict syncing)
         try {
+            // FIX 2: Better error catching
             await axios.post(`/api/productivity/timer/${task.id}/start`);
             setStatus('running');
         } catch (err) {
-            console.error(err);
+            console.error("Start Timer Error:", err);
+            alert("Backend Error! Did you add the productivity router to main.py? Check your backend terminal.");
+            
+            // Optional: Force the UI to run anyway so you can test the visuals
+            // setStatus('running'); 
         }
     };
 
@@ -33,9 +37,10 @@ const FocusModal = ({ task, onClose, onUpdate }) => {
             const res = await axios.post(`/api/productivity/tasks/${task.id}/finish-focus`);
             setResult(res.data);
             setStatus('result');
-            onUpdate(); // Refresh parent list
+            onUpdate(); 
         } catch (err) {
             console.error(err);
+            alert("Failed to finish task. Check backend terminal.");
         }
     };
 
@@ -44,6 +49,8 @@ const FocusModal = ({ task, onClose, onUpdate }) => {
         const s = (secs % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
     };
+
+// ... keep the return (...) statement exactly the same as before ...
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
